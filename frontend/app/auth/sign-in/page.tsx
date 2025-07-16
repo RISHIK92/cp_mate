@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import SignInWithToast from './SignInWithToast';
+import SignInWithToast from './signinComponent';
 
 export default function Page() {
   return (
