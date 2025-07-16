@@ -36,7 +36,7 @@ import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { useTheme } from '@/context/ThemeContext';
 
-export default function HomeSection() {
+export default function Home() {
   const params = useSearchParams();
   const shownRef = useRef(false);
   const { theme } = useTheme();
