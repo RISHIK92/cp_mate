@@ -1,0 +1,156 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "prisma+postgres://accelerate.prisma-data.net/?api_key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlfa2V5IjoiMDFKWkdOMzNRUFFaODczQUJUWjdRODdFMlIiLCJ0ZW5hbnRfaWQiOiI2OTQ1ZDA3MTc4ZWFjNDI5NDYwMDIwOTEwNTM4MTBhNWRmOWU1NTFlNjJmYjBiZTkwNzAyMjc2MWU2NDRmNzUzIiwiaW50ZXJuYWxfc2VjcmV0IjoiNDFhOWRjODQtNzEyZS00NTk5LTlmOGEtYjJhYzc1ZmU3NWNkIn0.1tuC4S7jj7QZO9GMjL4TEvCLg6av34uDRLHCkDVaCGk"
+}
+
+model UserVerification {
+  id        String   @id @default(uuid())
+  handle    String
+  platform  String
+  code      String
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  User      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+
+  // Add composite unique constraint for handle + platform
+  @@unique([handle, platform], name: "handle_platform")
+}
+
+model User {
+  id         String   @id @default(uuid())
+  handle     String   @unique
+  email      String   @unique
+  firstName  String?
+  lastName   String?
+  bio        String?
+  branch     String?
+  avatarUrl  String?
+  country    String?
+  passout    String?
+  degree     String?
+  university String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Platform handles
+  codeforcesHandle String? @unique
+  leetcodeHandle   String? @unique
+  codechefHandle   String? @unique
+  atcoderHandle    String? @unique
+
+  // Stats (can be expanded as needed)
+  totalSolved      Int     @default(0)
+  totalSubmissions Int     @default(0)
+  streak           Int     @default(0)
+  rating           Int?
+  contestRank      String?
+  awards           Int     @default(0)
+
+  // Relations
+  verifications     UserVerification[]
+  leetcodeProfile   LeetCodeProfile?
+  codeforcesProfile CodeforcesProfile?
+  AtcoderProfile    AtcoderProfile[]
+  CodechefProfile   CodechefProfile?
+}
+
+model LeetCodeProfile {
+  id         String  @id @default(uuid())
+  user       User    @relation(fields: [userId], references: [id])
+  userId     String  @unique
+  username   String  @unique
+  avatar     String?
+  realName   String?
+  ranking    Int?
+  reputation Int?
+
+  // Contest stats
+  attendedContestsCount Int?
+  rating                Float?
+  globalRanking         Int?
+  topPercentage         Float?
+
+  // Submission stats (store as JSON for flexibility)
+  acSubmissionNum     Json?
+  totalSubmissionNum  Json?
+  recentAcSubmissions Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CodeforcesProfile {
+  id     String @id @default(uuid())
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @unique
+  handle String @unique
+
+  firstName               String?
+  lastName                String?
+  avatar                  String?
+  country                 String?
+  city                    String?
+  organization            String?
+  contribution            Int? // CF contribution
+  rank                    String? // e.g. "legendary grandmaster"
+  maxRank                 String?
+  rating                  Int? // current rating
+  maxRating               Int? // peak rating
+  friendOfCount           Int? // followers / friends
+  registrationTimeSeconds Int? // epoch seconds
+  submissions             Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AtcoderProfile {
+  id            String    @id
+  user          User      @relation(fields: [userId], references: [id])
+  userId        String
+  contestId     String?
+  problemId     String?
+  language      String?
+  result        String?
+  point         Float?
+  executionTime Int?
+  codeLength    Int?
+  submittedAt   DateTime?
+
+  @@unique([userId, id])
+}
+
+model CodechefProfile {
+  id       String @id @default(uuid())
+  user     User   @relation(fields: [userId], references: [id])
+  userId   String @unique
+  username String @unique
+
+  avatarUrl       String?
+  country         String?
+  institution     String?
+  rank            Int? // Global rank
+  rating          Int?
+  highestRating   Int?
+  stars           Int? // Number of stars (1-7)
+  fullySolved     Int?
+  partiallySolved Int?
+
+  contestHistory    Json? // Store contest participation, performance
+  recentSubmissions Json? // Store last N submissions (problem name, status, lang, time, etc.)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
