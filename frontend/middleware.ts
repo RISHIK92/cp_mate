@@ -1,12 +1,11 @@
-// middleware.ts
 import { clerkMiddleware } from '@clerk/nextjs/server';
 
 export default clerkMiddleware();
 
 export const config = {
   matcher: [
-    '/((?!_next|.*\\..*).*)',
+    '/((?!.*\\..*|_next).*)',
+    '/',
     '/(api|trpc)(.*)',
   ],
-  runtime: 'nodejs',
 };
