@@ -25,8 +25,7 @@ export default function RobotLottie() {
         {/* Lottie animation (SSR-safe) */}
         <DotLottiePlayer
           src="https://lottie.host/55b00eac-8886-46b3-b909-342fbde88c0b/peRLOziFTg.lottie"
-          background="transparent"
-          speed="1"
+          speed={1}
           loop
           autoplay
           style={{ width: '100%', height: '100%' }}
